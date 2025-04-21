@@ -130,6 +130,6 @@ REST_FRAMEWORK = {
 
 
 CORS_ALLOW_ALL_ORIGINS = True
-CORS_TRUSTED_ORIGINS = [
-    'https://behruz.repid.uz'
+CORS_ALLOWED_ORIGINS = [
+    "https://behruz.repid.uz",
 ]
