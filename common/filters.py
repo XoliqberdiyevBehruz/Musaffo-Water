@@ -9,7 +9,7 @@ class ClientFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Client
-        fields = ['region', 'orders__status', 'full_name', 'code_number', 'phone_numbers']
+        fields = ['region', 'orders__status', 'search']
 
     def filter_by_all(self, queryset, name, value):
         return queryset.filter(
