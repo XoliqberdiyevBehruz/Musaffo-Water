@@ -56,7 +56,7 @@ class ClientOrderListSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Order
         fields = [
-            'id', 'given', 'received', 'the_rest', 'paid', 'indebtedness', 'status', 'created_at'
+            'id', 'count', 'price', 'given', 'received', 'the_rest', 'paid', 'indebtedness', 'status', 'created_at'
         ]
 
 
