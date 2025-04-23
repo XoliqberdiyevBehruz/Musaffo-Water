@@ -158,7 +158,7 @@ class ClientListSerializer(serializers.ModelSerializer):
         return ClientPhoneNumberSerializer(numbers, many=True).data
     
     def get_order(self, obj):
-        order =  models.Order.objects.order_by('-created_at').last()
+        order =  models.Order.objects.filter(client=obj).last()
         return OrderListSerializer(order).data
 
 
