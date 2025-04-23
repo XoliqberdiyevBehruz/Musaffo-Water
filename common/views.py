@@ -59,7 +59,7 @@ class ClientDetailApiView(generics.GenericAPIView):
 
 class ClientListApiView(generics.ListAPIView):
     serializer_class = serializers.ClientListSerializer
-    queryset = models.Client.objects.order_by('-created_at')
+    queryset = models.Client.objects.order_by('-created_at').distinct()
     filter_backends = [DjangoFilterBackend]
     filterset_class = filters.ClientFilter
     
