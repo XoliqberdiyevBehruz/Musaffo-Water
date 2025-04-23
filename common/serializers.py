@@ -184,6 +184,7 @@ class ClientUpdateSerializer(serializers.ModelSerializer):
         instance.region = validated_data.get('region', instance.region)
         instance.cooler = validated_data.get('cooler', instance.cooler)
         instance.location_text = validated_data.get('location_text', instance.location_text)
+        models.ClientPhoneNumber.objects.filter(client=instance).delete()
         for number_data in numbers_data:
             models.ClientPhoneNumber.objects.update_or_create(client=instance, number=number_data['number'])
         instance.save()
