@@ -177,14 +177,16 @@ class ClientUpdateSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         numbers_data = validated_data.pop('numbers', [])
+
         instance.code_number = validated_data.get('code_number', instance.code_number)
+        print(instance.code_number, validated_data['code_number'])
         instance.full_name = validated_data.get('full_name', instance.full_name)
         instance.region = validated_data.get('region', instance.region)
         instance.cooler = validated_data.get('cooler', instance.cooler)
         instance.location_text = validated_data.get('location_text', instance.location_text)
         for number_data in numbers_data:
             models.ClientPhoneNumber.objects.update_or_create(client=instance, number=number_data['number'])
-
+        instance.save()
         return instance
     
 

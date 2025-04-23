@@ -74,7 +74,7 @@ class ClientUpdateApiView(generics.GenericAPIView):
             client = models.Client.objects.get(id=id)
         except models.Client.DoesNotExist:
             return Response({'error': 'Client not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = serializers.ClientUpdateSerializer(client, data=request.data)
+        serializer = serializers.ClientUpdateSerializer(client, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response({"success": True}, status=status.HTTP_200_OK)
