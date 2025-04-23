@@ -15,6 +15,7 @@ class ClientCreateSerializer(serializers.Serializer):
     phone_numbers = serializers.ListSerializer(child=serializers.CharField())
     order_count = serializers.IntegerField()
     price = serializers.IntegerField()
+    paid = serializers.IntegerField()
     indebtedness = serializers.IntegerField()
 
     def validate_region(self, region):
@@ -41,7 +42,8 @@ class ClientCreateSerializer(serializers.Serializer):
                 client=client,
                 count=validated_data['order_count'],
                 price=validated_data['price'],
-                indebtedness=validated_data['indebtedness']
+                indebtedness=validated_data['indebtedness'],
+                paid=validated_data['paid']
             )
             return order
         
