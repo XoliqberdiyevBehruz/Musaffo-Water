@@ -58,7 +58,7 @@ class ClientOrderListSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Order
         fields = [
-            'id', 'count', 'price', 'given', 'received', 'the_rest', 'paid', 'indebtedness', 'status', 'created_at'
+            'id', 'count', 'price', 'received', 'the_rest', 'paid', 'indebtedness', 'status', 'created_at'
         ]
 
 
@@ -67,7 +67,7 @@ class OrderListSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Order
         fields = [
-            'id', 'count', 'price', 'the_rest', 'indebtedness', 'given'
+            'id', 'count', 'price', 'the_rest', 'indebtedness',
         ]
 
 
@@ -76,7 +76,6 @@ class ClientOrderCreateSerializer(serializers.Serializer):
     client_id = serializers.IntegerField()
     count = serializers.IntegerField()
     price = serializers.IntegerField()
-    given = serializers.IntegerField(required=False)
     the_rest = serializers.IntegerField(required=False)
     received = serializers.IntegerField(required=False)
     paid = serializers.IntegerField(required=False)
@@ -95,7 +94,6 @@ class ClientOrderCreateSerializer(serializers.Serializer):
                 client=validated_data['client_id'],
                 count=validated_data['count'],
                 price=validated_data['price'],
-                given=validated_data['given'],
                 the_rest=validated_data['the_rest'],
                 received=validated_data['received'],
                 paid=validated_data['paid'],
@@ -195,5 +193,5 @@ class ClientOrderUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Order
         fields = [
-            'count', 'price', 'given', 'the_rest', 'received', 'paid', 'indebtedness', 'status',
+            'count', 'price', 'the_rest', 'received', 'paid', 'indebtedness', 'status',
         ]

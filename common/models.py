@@ -43,11 +43,10 @@ class Order(BaseModel):
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='orders')
     count = models.PositiveSmallIntegerField()
     price = models.PositiveBigIntegerField()
-    given = models.PositiveIntegerField(default=0)
-    the_rest = models.PositiveIntegerField(default=0)
-    received = models.PositiveIntegerField(default=0)
-    paid = models.PositiveBigIntegerField(default=0)
-    indebtedness = models.PositiveBigIntegerField(default=0)
+    the_rest = models.PositiveIntegerField(null=True, blank=True)
+    received = models.PositiveIntegerField(null=True, blank=True)
+    paid = models.PositiveBigIntegerField(null=True, blank=True)
+    indebtedness = models.PositiveBigIntegerField(null=True, blank=True)
     status = models.CharField(max_length=8, choices=STATUS, default='yangi')
 
     def __str__(self):
