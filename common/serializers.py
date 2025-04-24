@@ -217,7 +217,7 @@ class ClientOrderUpdateSerializer(serializers.ModelSerializer):
         instance.paid = validated_data.get('paid', instance.paid)
         instance.status = validated_data.get('status', instance.status)
 
-        instance.the_rest = instance.count - instance.received + validated_data['previous_order'].the_rest
+        instance.the_rest = instance.count - instance.received + self.context['previous_order'].the_rest
 
         # Saqlash
         instance.save()
