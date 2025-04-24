@@ -209,17 +209,15 @@ class ClientOrderUpdateSerializer(serializers.ModelSerializer):
             'count', 'price', 'the_rest', 'received', 'paid', 'indebtedness', 'status',
         ]
 
-    # def update(self, instance, validated_data):
-    #     instance.count = validated_data.get('count', instance.count)
-    #     instance.price = validated_data.get('price', instance.price)
-    #     instance.received = validated_data.get('received', instance.received)
-    #     instance.paid = validated_data.get('paid', instance.paid)
-    #     instance.status = validated_data.get('status', instance.status)
-
-    #     instance.the_rest = instance.count - instance.received + (self.context.get('previous_order').the_rest if self.context.get('previous_order') else 0)
-
-    #     instance.save()
-    #     return instance
+    def update(self, instance, validated_data):
+        instance.count = validated_data.get('count', instance.count)
+        instance.price = validated_data.get('price', instance.price)
+        instance.received = validated_data.get('received', instance.received)
+        instance.paid = validated_data.get('paid', instance.paid)
+        instance.status = validated_data.get('status', instance.status)
+        instance.the_rest = validated_data.get('count', instance.count) - (validated_data.get('received', instance.received) if validated_data.get('received', instance.received) else 0)
+        instance.save()
+        return instance
 
 class OrderStatusUpdateSerializer(serializers.Serializer):
     ids = serializers.ListSerializer(child=serializers.IntegerField())
