@@ -43,7 +43,8 @@ class ClientCreateSerializer(serializers.Serializer):
                 count=validated_data['order_count'],
                 price=validated_data['price'],
                 indebtedness=validated_data['indebtedness'],
-                paid=validated_data['paid']
+                paid=validated_data['paid'],
+                the_rest=validated_data['order_count']
             )
             return order
         
