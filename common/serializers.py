@@ -92,7 +92,7 @@ class ClientOrderCreateSerializer(serializers.Serializer):
     def create(self, validated_data):
         with transaction.atomic():
             last_order = models.Order.objects.filter(client=validated_data['client_id']).order_by('-created_at').first()
-            if last_order.exists():
+            if last_order:
                 order = models.Order.objects.create(
                     client=validated_data['client_id'],
                     count=validated_data['count'],
