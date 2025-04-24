@@ -19,7 +19,7 @@ class ClientFilter(django_filters.FilterSet):
             Q(numbers__number__icontains=value)
         ).distinct()
     
-    def filter_by_new(self, querysey, name, value):
-        return querysey.filter(
+    def filter_by_new(self, queryset, name, value):
+        return queryset.filter(
             orders__status='yangi'
         )
