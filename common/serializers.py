@@ -91,27 +91,27 @@ class ClientOrderCreateSerializer(serializers.Serializer):
     
     def create(self, validated_data):
         with transaction.atomic():
-            last_order = models.Order.objects.filter(client=validated_data['client_id']).order_by('-created_at').first()
-            if last_order:
-                order = models.Order.objects.create(
-                    client=validated_data['client_id'],
-                    count=validated_data['count'],
-                    price=validated_data['price'],
-                    the_rest=last_order.the_rest + validated_data['count'] - validated_data['received'],
-                    received=validated_data['received'],
-                    paid=validated_data['paid'],
-                    indebtedness=validated_data['indebtedness'],
-                )
-            else:
-                order = models.Order.objects.create(
-                    client=validated_data['client_id'],
-                    count=validated_data['count'],
-                    price=validated_data['price'],
-                    the_rest=validated_data['count'],
-                    received=validated_data['received'],
-                    paid=validated_data['paid'],
-                    indebtedness=validated_data['indebtedness'],
-                )
+            # last_order = models.Order.objects.filter(client=validated_data['client_id']).order_by('-created_at').first()
+            # if last_order:
+            order = models.Order.objects.create(
+                client=validated_data['client_id'],
+                count=validated_data['count'],
+                price=validated_data['price'],
+                the_rest=validated_data['the_rest'],
+                received=validated_data['received'],
+                paid=validated_data['paid'],
+                indebtedness=validated_data['indebtedness'],
+            )
+            # else:
+            #     order = models.Order.objects.create(
+            #         client=validated_data['client_id'],
+            #         count=validated_data['count'],
+            #         price=validated_data['price'],
+            #         the_rest=validated_data['count'],
+            #         received=validated_data['received'],
+            #         paid=validated_data['paid'],
+            #         indebtedness=validated_data['indebtedness'],
+            #     )
             return ClientOrderListSerializer(order).data
         
 
@@ -209,18 +209,17 @@ class ClientOrderUpdateSerializer(serializers.ModelSerializer):
             'count', 'price', 'the_rest', 'received', 'paid', 'indebtedness', 'status',
         ]
 
-    def update(self, instance, validated_data):
-        # Masalan: narx va to'lov asosida qarzdorlikni hisoblash
-        instance.count = validated_data.get('count', instance.count)
-        instance.price = validated_data.get('price', instance.price)
-        instance.received = validated_data.get('received', instance.received)
-        instance.paid = validated_data.get('paid', instance.paid)
-        instance.status = validated_data.get('status', instance.status)
+    # def update(self, instance, validated_data):
+    #     instance.count = validated_data.get('count', instance.count)
+    #     instance.price = validated_data.get('price', instance.price)
+    #     instance.received = validated_data.get('received', instance.received)
+    #     instance.paid = validated_data.get('paid', instance.paid)
+    #     instance.status = validated_data.get('status', instance.status)
 
-        instance.the_rest = instance.count - instance.received + (self.context.get('previous_order').the_rest if self.context.get('previous_order') else 0)
+    #     instance.the_rest = instance.count - instance.received + (self.context.get('previous_order').the_rest if self.context.get('previous_order') else 0)
 
-        instance.save()
-        return instance
+    #     instance.save()
+    #     return instance
 
 class OrderStatusUpdateSerializer(serializers.Serializer):
     ids = serializers.ListSerializer(child=serializers.IntegerField())

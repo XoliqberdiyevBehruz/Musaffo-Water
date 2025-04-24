@@ -86,23 +86,23 @@ class ClientOrderUpdateApiView(generics.UpdateAPIView):
     queryset = models.Order
     lookup_field = 'id'
 
-    def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
+    # def partial_update(self, request, *args, **kwargs):
+    #     instance = self.get_object()
 
-        previous_order = (
-            models.Order.objects
-            .filter(client=instance.client, id__lt=instance.id)
-            .order_by('-created_at')
-            .first()
-        )
-        if previous_order:
-            print(f"Previous order: {previous_order.id}")
+    #     previous_order = (
+    #         models.Order.objects
+    #         .filter(client=instance.client, id__lt=instance.id)
+    #         .order_by('-created_at')
+    #         .first()
+    #     )
+    #     if previous_order:
+    #         print(f"Previous order: {previous_order.id}")
 
-        serializer = self.get_serializer(instance, data=request.data, partial=True, context={'previous_order': previous_order})
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+    #     serializer = self.get_serializer(instance, data=request.data, partial=True, context={'previous_order': previous_order})
+    #     serializer.is_valid(raise_exception=True)
+    #     self.perform_update(serializer)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class OrderStatusUpdateApiView(generics.GenericAPIView):
