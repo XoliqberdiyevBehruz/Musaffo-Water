@@ -97,7 +97,7 @@ class ClientOrderCreateSerializer(serializers.Serializer):
                 client=validated_data['client_id'],
                 count=validated_data['count'],
                 price=validated_data['price'],
-                the_rest=validated_data['the_rest'],
+                the_rest=validated_data['count'],
                 received=validated_data['received'],
                 paid=validated_data['paid'],
                 indebtedness=validated_data['indebtedness'],
