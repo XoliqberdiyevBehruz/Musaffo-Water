@@ -85,3 +85,23 @@ class ClientOrderUpdateApiView(generics.UpdateAPIView):
     serializer_class = serializers.ClientOrderUpdateSerializer
     queryset = models.Order
     lookup_field = 'id'
+
+
+class OrderStatusUpdateApiView(generics.GenericAPIView):
+    serializer_class = serializers.OrderStatusUpdateSerializer
+    queryset = models.Order
+
+    def post(self, request):
+        serializer = serializers.OrderStatusUpdateSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            data = serializer.data
+            for id in data['ids']:
+                try:
+                    order = models.Order.objects.get(id=id)
+                    order.status = 'berilgan'
+                    order.save()
+                except models.Order.DoesNotExist:
+                    return Response({'success': False}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'success': True}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -195,3 +195,8 @@ class ClientOrderUpdateSerializer(serializers.ModelSerializer):
         fields = [
             'count', 'price', 'the_rest', 'received', 'paid', 'indebtedness', 'status',
         ]
+
+class OrderStatusUpdateSerializer(serializers.Serializer):
+    ids = serializers.ListSerializer(child=serializers.IntegerField())
+
+    

@@ -12,4 +12,5 @@ urlpatterns = [
     path('client/list/', views.ClientListApiView.as_view(), name='client list api'),
     path('client/<int:id>/update/', views.ClientUpdateApiView.as_view(), name='client update api'),
     path('client/order/<int:id>/update/', views.ClientOrderUpdateApiView.as_view(), name='client order update api'),
+    path('order/status/update/', views.OrderStatusUpdateApiView.as_view(), name='order status update api'),
 ]

@@ -14,7 +14,7 @@ schema_view = get_schema_view(
         license=openapi.License(name="BSD License"),
     ),
     public=True,
-    url='https://behruz.repid.uz'
+    # url='https://behruz.repid.uz'
 )
 
 urlpatterns = [
