@@ -88,7 +88,7 @@ class ClientOrderUpdateApiView(generics.UpdateAPIView):
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True, context={'previous_order': previous_order})
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 

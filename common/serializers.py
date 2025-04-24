@@ -190,7 +190,6 @@ class ClientUpdateSerializer(serializers.ModelSerializer):
         numbers_data = validated_data.pop('numbers', [])
 
         instance.code_number = validated_data.get('code_number', instance.code_number)
-        print(instance.code_number, validated_data['code_number'])
         instance.full_name = validated_data.get('full_name', instance.full_name)
         instance.region = validated_data.get('region', instance.region)
         instance.cooler = validated_data.get('cooler', instance.cooler)
