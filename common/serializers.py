@@ -69,7 +69,7 @@ class OrderListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'count', 'price', 'the_rest', 'indebtedness',
         ]
-
+    
 
 
 class ClientOrderCreateSerializer(serializers.Serializer):
@@ -90,15 +90,27 @@ class ClientOrderCreateSerializer(serializers.Serializer):
     
     def create(self, validated_data):
         with transaction.atomic():
-            order = models.Order.objects.create(
-                client=validated_data['client_id'],
-                count=validated_data['count'],
-                price=validated_data['price'],
-                the_rest=validated_data['the_rest'],
-                received=validated_data['received'],
-                paid=validated_data['paid'],
-                indebtedness=validated_data['indebtedness'],
-            )
+            last_order = models.Order.objects.filter(client__id=validated_data['client_id']).order_by('-created_at')
+            if last_order.exists:
+                order = models.Order.objects.create(
+                    client=validated_data['client_id'],
+                    count=validated_data['count'],
+                    price=validated_data['price'],
+                    the_rest=last_order.the_rest + validated_data['count'] - validated_data['received'],
+                    received=validated_data['received'],
+                    paid=validated_data['paid'],
+                    indebtedness=validated_data['indebtedness'],
+                )
+            else:
+                order = models.Order.objects.create(
+                    client=validated_data['client_id'],
+                    count=validated_data['count'],
+                    price=validated_data['price'],
+                    the_rest=validated_data['count'],
+                    received=validated_data['received'],
+                    paid=validated_data['paid'],
+                    indebtedness=validated_data['indebtedness'],
+                )
             return ClientOrderListSerializer(order).data
         
 
