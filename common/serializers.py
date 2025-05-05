@@ -18,7 +18,6 @@ class ClientCreateSerializer(serializers.Serializer):
 
     order_count = serializers.IntegerField()
     paid = serializers.IntegerField()
-    payment_type = serializers.ChoiceField(choices=models.Order.PAYMENT_TYPE)
 
     def validate_region(self, region):
         try:
