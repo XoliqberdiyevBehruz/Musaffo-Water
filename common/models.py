@@ -9,18 +9,26 @@ class BaseModel(models.Model):
 
 class Region(BaseModel):
     name = models.CharField(max_length=250)
+    number_of_trips = models.CharField(max_length=25, null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return "{} - {}".format(self.name, self.number_of_trips)
 
 
 class Client(BaseModel):
+    CLIENT_TYPE = (
+        ("physical_person", "physical_person"),
+        ("legal_person", "legal_person"),
+    )
+
     code_number = models.PositiveIntegerField(unique=True)
     full_name = models.CharField(max_length=250)
     region = models.ForeignKey(Region, on_delete=models.CASCADE, related_name='clients')
     location_text = models.CharField(max_length=250)
-    debt = models.PositiveIntegerField(default=0)
+    debt = models.BigIntegerField(default=0)
     cooler = models.CharField(max_length=50)
+    price = models.PositiveBigIntegerField()
+    client_type = models.CharField(max_length=50, choices=CLIENT_TYPE)
 
     def __str__(self):
         return self.full_name
@@ -36,8 +44,14 @@ class ClientPhoneNumber(BaseModel):
 
 class Order(BaseModel):
     STATUS = (
-        ('yangi', 'yangi'),
-        ('berilgan', 'berilgan'),
+        ('new', 'new'),
+        ('delivered', 'delivered'),
+        ('cancelled', 'cancelled')
+    )
+    PAYMENT_TYPE = (
+        ("card", "card"),
+        ("cash", "cash"),
+        ("account_number", "account_number"),
     )
 
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='orders')
@@ -46,8 +60,9 @@ class Order(BaseModel):
     the_rest = models.PositiveIntegerField(null=True, blank=True)
     received = models.PositiveIntegerField(null=True, blank=True)
     paid = models.PositiveBigIntegerField(null=True, blank=True)
-    indebtedness = models.PositiveBigIntegerField(null=True, blank=True)
-    status = models.CharField(max_length=8, choices=STATUS, default='yangi')
+    indebtedness = models.BigIntegerField(null=True, blank=True)
+    status = models.CharField(max_length=15, choices=STATUS, default='new')
+    payment_type = models.CharField(max_length=50, choices=PAYMENT_TYPE)
 
     def __str__(self):
         return f'{self.client} - {self.count} - {self.price}'

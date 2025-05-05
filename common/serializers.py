@@ -3,7 +3,7 @@ from django.db.models import Sum
 
 from rest_framework import serializers
 
-from common import models 
+from common import models, utils
 
 
 class ClientCreateSerializer(serializers.Serializer):
@@ -13,10 +13,12 @@ class ClientCreateSerializer(serializers.Serializer):
     location_text = serializers.CharField()
     cooler = serializers.CharField()
     phone_numbers = serializers.ListSerializer(child=serializers.CharField())
+    capsule_price = serializers.IntegerField()
+    client_type = serializers.ChoiceField(choices=models.Client.CLIENT_TYPE)
+
     order_count = serializers.IntegerField()
-    price = serializers.IntegerField()
     paid = serializers.IntegerField()
-    indebtedness = serializers.IntegerField()
+    payment_type = serializers.ChoiceField(choices=models.Order.PAYMENT_TYPE)
 
     def validate_region(self, region):
         try:
@@ -34,6 +36,9 @@ class ClientCreateSerializer(serializers.Serializer):
                 region=validated_data['region'],
                 location_text=validated_data['location_text'],
                 cooler=validated_data['cooler'],    
+                price=validated_data['capsule_price'],
+                client_type=validated_data['client_type'],
+                debt=(validated_data['capsule_price'] * validated_data['order_count']) - validated_data['paid']
             )  
             for phone in validated_data['phone_numbers']:
                 models.ClientPhoneNumber.objects.create(number=phone, client=client)
@@ -41,10 +46,11 @@ class ClientCreateSerializer(serializers.Serializer):
             order = models.Order.objects.create(
                 client=client,
                 count=validated_data['order_count'],
-                price=validated_data['price'],
-                indebtedness=validated_data['indebtedness'],
+                price=validated_data['capsule_price'] * validated_data['order_count'],
                 paid=validated_data['paid'],
-                the_rest=validated_data['order_count']
+                the_rest=validated_data['order_count'],
+                indebtedness=(validated_data['capsule_price'] * validated_data['order_count']) - validated_data['paid'],
+                payment_type=validated_data['payment_type'],
             )
             return order
         
@@ -52,14 +58,14 @@ class ClientCreateSerializer(serializers.Serializer):
 class RegionListSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Region
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'number_of_trips']
 
 
 class ClientOrderListSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Order
         fields = [
-            'id', 'count', 'price', 'received', 'the_rest', 'paid', 'indebtedness', 'status', 'created_at'
+            'id', 'count', 'price', 'received', 'the_rest', 'paid', 'indebtedness', 'status', 'payment_type', 'created_at'
         ]
 
 
@@ -68,7 +74,8 @@ class OrderListSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Order
         fields = [
-            'id', 'count', 'price', 'the_rest', 'indebtedness',
+            'id', 'count', 'price', 'the_rest', 'indebtedness', 'payment_type', 
+            'status'
         ]
     
 
@@ -76,10 +83,8 @@ class OrderListSerializer(serializers.ModelSerializer):
 class ClientOrderCreateSerializer(serializers.Serializer):
     client_id = serializers.IntegerField()
     count = serializers.IntegerField()
-    price = serializers.IntegerField()
-    the_rest = serializers.IntegerField(required=False)
-    received = serializers.IntegerField(required=False)
     paid = serializers.IntegerField(required=False)
+    payment_type = serializers.ChoiceField(choices=models.Order.PAYMENT_TYPE)
     indebtedness = serializers.IntegerField(required=False)
 
     def validate_client_id(self, client_id):
@@ -91,27 +96,17 @@ class ClientOrderCreateSerializer(serializers.Serializer):
     
     def create(self, validated_data):
         with transaction.atomic():
-            # last_order = models.Order.objects.filter(client=validated_data['client_id']).order_by('-created_at').first()
-            # if last_order:
+            price = validated_data['client_id'].price * validated_data['count']
             order = models.Order.objects.create(
                 client=validated_data['client_id'],
                 count=validated_data['count'],
-                price=validated_data['price'],
+                price=price,
                 the_rest=validated_data['count'],
-                received=validated_data['received'],
+                received=0,
                 paid=validated_data['paid'],
                 indebtedness=validated_data['indebtedness'],
+                payment_type=validated_data['payment_type'],
             )
-            # else:
-            #     order = models.Order.objects.create(
-            #         client=validated_data['client_id'],
-            #         count=validated_data['count'],
-            #         price=validated_data['price'],
-            #         the_rest=validated_data['count'],
-            #         received=validated_data['received'],
-            #         paid=validated_data['paid'],
-            #         indebtedness=validated_data['indebtedness'],
-            #     )
             return ClientOrderListSerializer(order).data
         
 
@@ -133,7 +128,7 @@ class ClientDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Client
         fields = [
-            'id', 'code_number', 'full_name', 'region', 'numbers', 'cooler', 'location_text', 'orders_count', 'empty_dish', 'all_debt'
+            'id', 'code_number', 'full_name', 'region', 'numbers', 'cooler', 'location_text', 'orders_count', 'empty_dish', 'all_debt', 'price', 'client_type'
         ]
 
     def get_numbers(self, obj):
@@ -146,12 +141,12 @@ class ClientDetailSerializer(serializers.ModelSerializer):
     def get_empty_dish(self, obj):
         return models.Order.objects.filter(client=obj).aggregate(
             empty_dish=Sum('the_rest')
-        )
+        )['empty_dish']
         
     def get_all_debt(self, obj):
         return models.Order.objects.filter(client=obj).aggregate(
             all_debt=Sum('indebtedness')
-        )
+        )['all_debt']
 
 
 
@@ -163,7 +158,7 @@ class ClientListSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Client
         fields = [
-            'id', 'code_number', 'full_name', 'region', 'numbers', 'cooler', 'location_text', 'order',
+            'id', 'code_number', 'full_name', 'region', 'numbers', 'cooler', 'location_text', 'order', 'client_type',
         ]
 
     def get_numbers(self, obj):
@@ -205,7 +200,7 @@ class ClientOrderUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Order
         fields = [
-            'count', 'price', 'the_rest', 'received', 'paid', 'indebtedness', 'status',
+            'count', 'price', 'the_rest', 'received', 'paid', 'indebtedness', 'status', 'payment_type'
         ]
 
     def update(self, instance, validated_data):
@@ -215,10 +210,9 @@ class ClientOrderUpdateSerializer(serializers.ModelSerializer):
         instance.paid = validated_data.get('paid', instance.paid)
         instance.status = validated_data.get('status', instance.status)
         instance.the_rest = validated_data.get('count', instance.count) - (validated_data.get('received', instance.received) if validated_data.get('received', instance.received) else 0)
+        instance.payment_type = validated_data.get('payment_type', instance.payment_type)
         instance.save()
         return instance
 
 class OrderStatusUpdateSerializer(serializers.Serializer):
     ids = serializers.ListSerializer(child=serializers.IntegerField())
-
-    
