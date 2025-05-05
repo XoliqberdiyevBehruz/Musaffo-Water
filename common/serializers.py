@@ -3,7 +3,7 @@ from django.db.models import Sum
 
 from rest_framework import serializers
 
-from common import models, utils
+from common import models
 
 
 class ClientCreateSerializer(serializers.Serializer):
@@ -26,6 +26,13 @@ class ClientCreateSerializer(serializers.Serializer):
         except:
             raise serializers.ValidationError('region not found')
         return region 
+    
+    def validate_code_number(self, code_number):
+        try:
+            client = models.Client.objects.get(code_number=code_number)
+        except models.Client.DoesNotExist:
+            raise serializers.ValidationError('client already exists')
+        return code_number
     
 
     def create(self, validated_data):
