@@ -127,3 +127,36 @@ class OrderStatusChangeApiView(generics.GenericAPIView):
         order.status = 'cancelled'
         order.save()
         return Response({'status': order.status}, status=status.HTTP_200_OK)
+
+
+class NumberOfTripsCreateApiView(generics.GenericAPIView):
+    serializer_class = serializers.NumberOfTripsCreateSerializer
+    queryset = models.NumberOfTrips.objects.all()
+
+    def post(self, request):
+        serializer = serializers.NumberOfTripsCreateSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response({"success": True}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class NumberOfTripsDeleteApiView(generics.DestroyAPIView):
+    queryset = models.NumberOfTrips.objects.all()
+    lookup_field = 'id'
+
+
+class ClientOrderListUpdateApiView(generics.GenericAPIView):
+    serializer_class = serializers.ClientOrderListUpdateSerializer
+    queryset = models.Order
+
+    def patch(self, request, order_id):
+        try:
+            order = models.Order.objects.get(id=order_id)
+        except models.Order.DoesNotExist:
+            return Response({'error': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = serializers.ClientOrderListUpdateSerializer(order, data=request.data, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response({"success": True}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_200_OK)

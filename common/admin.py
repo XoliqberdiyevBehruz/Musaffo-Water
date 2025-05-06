@@ -23,3 +23,9 @@ class RegionAdmin(admin.ModelAdmin):
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'price', 'count', 'client']
     autocomplete_fields = ['client']
+
+
+@admin.register(models.NumberOfTrips)
+class NumberOfTripsAdmin(admin.ModelAdmin):
+    list_display = ['id', 'number']
+    autocomplete_fields = ['client']

@@ -9,7 +9,6 @@ class BaseModel(models.Model):
 
 class Region(BaseModel):
     name = models.CharField(max_length=250)
-    number_of_trips = models.CharField(max_length=25, null=True, blank=True)
 
     def __str__(self):
         return "{} - {}".format(self.name, self.number_of_trips)
@@ -68,3 +67,11 @@ class Order(BaseModel):
         return f'{self.client} - {self.count} - {self.price}'
 
 
+class NumberOfTrips(BaseModel):
+    number = models.CharField(max_length=50)
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='number_of_trips')
+
+    def __str__(self):
+        return "{} - {}".format(self.client, self.number)
+    
+    

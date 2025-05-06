@@ -14,7 +14,7 @@ class ClientFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Client
-        fields = ['region', 'is_new', 'search', 'client_type', 'number_of_trips', 'is_delivered', 'number']
+        fields = ['region', 'is_new', 'search', 'client_type', 'number_of_trips', 'is_delivered', 'number', ]
 
     def filter_by_all(self, queryset, name, value):
         return queryset.filter(
@@ -50,7 +50,7 @@ class ClientFilter(django_filters.FilterSet):
     def filter_by_number_of_trips(self, queryset, name, value):
         if value:
             return queryset.filter(
-                region__number_of_trips=value
+                number_of_trips__number__icontains=value
             )
         else:
             return queryset

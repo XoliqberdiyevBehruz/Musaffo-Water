@@ -65,7 +65,7 @@ class ClientCreateSerializer(serializers.Serializer):
 class RegionListSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Region
-        fields = ['id', 'name', 'number_of_trips']
+        fields = ['id', 'name']
 
 
 class ClientOrderListSerializer(serializers.ModelSerializer):
@@ -97,6 +97,9 @@ class ClientOrderCreateSerializer(serializers.Serializer):
     def validate_client_id(self, client_id):
         try:
             client = models.Client.objects.get(id=client_id)
+            order = models.Order.objects.filter(client=client_id).order_by('-created_at').first()
+            if order.status != 'delivered':
+                raise serializers.ValidationError('previous order not delivered')
         except models.Client.DoesNotExist:
             raise serializers.ValidationError('client not found')
         return client
@@ -160,11 +163,12 @@ class ClientListSerializer(serializers.ModelSerializer):
     region = RegionListSerializer()
     numbers = serializers.SerializerMethodField(method_name='get_numbers')
     order = serializers.SerializerMethodField(method_name='get_order')
+    number_of_trips = serializers.SerializerMethodField(method_name='get_number_of_trips')
 
     class Meta:
         model = models.Client
         fields = [
-            'id', 'code_number', 'full_name', 'region', 'numbers', 'cooler', 'location_text', 'order', 'client_type',
+            'id', 'code_number', 'full_name', 'region', 'numbers', 'cooler', 'location_text', 'order', 'client_type', 'number_of_trips',
         ]
 
     def get_numbers(self, obj):
@@ -175,7 +179,13 @@ class ClientListSerializer(serializers.ModelSerializer):
         order =  models.Order.objects.filter(client=obj).last()
         return OrderListSerializer(order).data
 
-
+    def get_number_of_trips(self, obj):
+        number_of_trips = models.NumberOfTrips.objects.filter(client=obj).last()
+        if number_of_trips:
+            return {"id": number_of_trips.id, "number": number_of_trips.number}
+        else:
+            return None 
+        
 class ClientUpdateSerializer(serializers.ModelSerializer):
     numbers = ClientPhoneNumberSerializer(many=True)
 
@@ -222,5 +232,34 @@ class ClientOrderUpdateSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+
 class OrderStatusUpdateSerializer(serializers.Serializer):
     ids = serializers.ListSerializer(child=serializers.IntegerField())
+
+
+class NumberOfTripsCreateSerializer(serializers.Serializer):
+    client_ids = serializers.ListSerializer(child=serializers.IntegerField())
+    number = serializers.CharField()
+
+    def create(self, validated_data):
+        with transaction.atomic():
+            for client_id in validated_data['client_ids']:
+                try:
+                    client = models.Client.objects.get(id=client_id)
+                    number_of_trips = models.NumberOfTrips.objects.create(client=client, number=validated_data['number'])
+                except models.Client.DoesNotExist:
+                    raise serializers.ValidationError('client not found')
+            return {"message": "successfully created"}
+        
+class ClientOrderListUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Order
+        fields = [
+            'received',
+        ]
+    
+    def update(self, instance, validated_data):
+        instance.received = validated_data.get('received', instance.received)
+        instance.the_rest = instance.count - instance.received
+        instance.save()
+        return instance
