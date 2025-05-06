@@ -28,11 +28,11 @@ class ClientCreateSerializer(serializers.Serializer):
         return region 
     
     def validate_code_number(self, code_number):
-        try:
-            client = models.Client.objects.get(code_number=code_number)
-        except models.Client.DoesNotExist:
+        client = models.Client.objects.get(code_number=code_number)
+        if client:
             raise serializers.ValidationError('client already exists')
-        return code_number
+        else:
+            return code_number
     
 
     def create(self, validated_data):
