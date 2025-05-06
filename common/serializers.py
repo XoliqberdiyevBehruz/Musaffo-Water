@@ -156,7 +156,6 @@ class ClientDetailSerializer(serializers.ModelSerializer):
         )['all_debt']
 
 
-
 class ClientListSerializer(serializers.ModelSerializer):
     region = RegionListSerializer()
     numbers = serializers.SerializerMethodField(method_name='get_numbers')
@@ -175,7 +174,6 @@ class ClientListSerializer(serializers.ModelSerializer):
     def get_order(self, obj):
         order =  models.Order.objects.filter(client=obj).last()
         return OrderListSerializer(order).data
-
 
 
 class ClientUpdateSerializer(serializers.ModelSerializer):
@@ -220,6 +218,7 @@ class ClientOrderUpdateSerializer(serializers.ModelSerializer):
         instance.status = validated_data.get('status', instance.status)
         instance.the_rest = validated_data.get('count', instance.count) - (validated_data.get('received', instance.received) if validated_data.get('received', instance.received) else 0)
         instance.payment_type = validated_data.get('payment_type', instance.payment_type)
+        instance.indebtedness = validated_data.get('indebtedness', instance.indebtedness)
         instance.save()
         return instance
 
