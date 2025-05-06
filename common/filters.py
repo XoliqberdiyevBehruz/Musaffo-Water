@@ -61,21 +61,15 @@ class ClientFilter(django_filters.FilterSet):
         result = []
         for client in clients:
             order = client.orders.filter(count__lte=value).order_by('-created_at').first()
-            print(order)
-            print(count + order.count < value)
-            if  count + order.count <= value:
-                count += order.count
-                result.append(client.pk)
-                print("yesssssss")
             if not order:
                 continue
             if order.count == value:
                 count += order.count
                 result.append(client.pk)
-                print('yess')
-            else:
-                continue
-    
+            elif  count + order.count <= value:
+                count += order.count
+                result.append(client.pk)
+                        
             if count == value:
                 break
         return queryset.filter(pk__in=result)
