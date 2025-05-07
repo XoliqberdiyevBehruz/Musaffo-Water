@@ -45,7 +45,8 @@ class Order(BaseModel):
     STATUS = (
         ('new', 'new'),
         ('delivered', 'delivered'),
-        ('cancelled', 'cancelled')
+        ('cancelled', 'cancelled'),
+        ('taken', 'taken'),
     )
     PAYMENT_TYPE = (
         ("card", "card"),

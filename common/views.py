@@ -106,7 +106,7 @@ class OrderStatusUpdateApiView(generics.GenericAPIView):
             for id in data['ids']:
                 try:
                     order = models.Order.objects.get(id=id)
-                    order.status = 'delivered'
+                    order.status = 'taken'
                     order.save()
                 except models.Order.DoesNotExist:
                     return Response({'success': False}, status=status.HTTP_404_NOT_FOUND)

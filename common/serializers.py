@@ -261,5 +261,6 @@ class ClientOrderListUpdateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.received = validated_data.get('received', instance.received)
         instance.the_rest = instance.count - instance.received
+        instance.status = 'delivered'
         instance.save()
         return instance
