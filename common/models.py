@@ -11,7 +11,7 @@ class Region(BaseModel):
     name = models.CharField(max_length=250)
 
     def __str__(self):
-        return "{} - {}".format(self.name, self.number_of_trips)
+        return self.name
 
 
 class Client(BaseModel):
