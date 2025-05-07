@@ -164,11 +164,13 @@ class ClientListSerializer(serializers.ModelSerializer):
     numbers = serializers.SerializerMethodField(method_name='get_numbers')
     order = serializers.SerializerMethodField(method_name='get_order')
     number_of_trips = serializers.SerializerMethodField(method_name='get_number_of_trips')
+    all_debt = serializers.SerializerMethodField(method_name='get_all_debt')
+
 
     class Meta:
         model = models.Client
         fields = [
-            'id', 'code_number', 'full_name', 'region', 'numbers', 'cooler', 'location_text', 'order', 'client_type', 'number_of_trips',
+            'id', 'code_number', 'full_name', 'region', 'numbers', 'cooler', 'location_text', 'order', 'client_type', 'number_of_trips', 'all_debt'
         ]
 
     def get_numbers(self, obj):
@@ -185,6 +187,11 @@ class ClientListSerializer(serializers.ModelSerializer):
             return {"id": number_of_trips.id, "number": number_of_trips.number}
         else:
             return None 
+        
+    def get_all_debt(self, obj):
+        return models.Order.objects.filter(client=obj).aggregate(
+            all_debt=Sum('indebtedness')
+        )['all_debt']
         
 class ClientUpdateSerializer(serializers.ModelSerializer):
     numbers = ClientPhoneNumberSerializer(many=True)
