@@ -97,9 +97,9 @@ class ClientOrderCreateSerializer(serializers.Serializer):
     def validate_client_id(self, client_id):
         try:
             client = models.Client.objects.get(id=client_id)
-            order = models.Order.objects.filter(client=client_id).order_by('-created_at').first()
-            if order.status != 'delivered':
-                raise serializers.ValidationError('previous order not delivered')
+            # order = models.Order.objects.filter(client=client_id).order_by('-created_at').first()
+            # if order.status != 'delivered':
+                # raise serializers.ValidationError('previous order not delivered')
         except models.Client.DoesNotExist:
             raise serializers.ValidationError('client not found')
         return client
