@@ -35,7 +35,7 @@ class ClientFilter(django_filters.FilterSet):
     def filter_by_is_delivered(self, queryset, name, value):
         if value == True:
             return queryset.filter(
-                orders__status='delivered'
+                orders__status='taken'
             )
         return queryset
     
